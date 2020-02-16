@@ -43,11 +43,13 @@ use std::error::Error;
 #[macro_use] extern crate serde;
 
 mod firefox;
+mod chrome;
 pub mod errors;
 
 /// All supported browsers
 pub enum Browser {
-    Firefox
+    Firefox,
+    Chrome,
 }
 
 /// Main struct facilitating operations like collection & parsing of cookies from browsers
@@ -64,7 +66,8 @@ impl Browsercookies {
 
     pub fn from_browser(&mut self, b: Browser, domain_regex: &Regex) -> Result<(), Box<dyn Error>> {
         match b {
-            Browser::Firefox => firefox::load(&mut self.cj, domain_regex)
+            Browser::Firefox => firefox::load(&mut self.cj, domain_regex),
+            Browser::Chrome => chrome::load(&mut self.cj, domain_regex),
         }
     }
 
@@ -88,6 +91,16 @@ mod tests {
         let mut bc = Browsercookies::new();
         let domain_regex = Regex::new(".*").unwrap();
         bc.from_browser(Browser::Firefox, &domain_regex).expect("Failed to get firefox browser cookies");
+        if let Ok(cookie_header) = bc.to_header(&domain_regex) as Result<String, Box<dyn Error>> {
+            assert_eq!(cookie_header, "name=value; ");
+        }
+    }
+
+    #[test]
+    fn test_chrome() {
+        let mut bc = Browsercookies::new();
+        let domain_regex = Regex::new(".*").unwrap();
+        bc.from_browser(Browser::Chrome, &domain_regex).expect("Failed to get chrome browser cookies");
         if let Ok(cookie_header) = bc.to_header(&domain_regex) as Result<String, Box<dyn Error>> {
             assert_eq!(cookie_header, "name=value; ");
         }
