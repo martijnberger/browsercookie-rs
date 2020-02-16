@@ -48,7 +48,7 @@ fn get_master_profile_path() -> PathBuf {
     path
 }
 
-fn get_default_profile_path(master_profile: &Path) -> Result<PathBuf, Box<Error>> {
+fn get_default_profile_path(master_profile: &Path) -> Result<PathBuf, Box<dyn Error>> {
     let profiles_conf: Ini;
     let mut default_profile_path = PathBuf::from(master_profile);
     default_profile_path.pop();
@@ -71,7 +71,7 @@ fn get_default_profile_path(master_profile: &Path) -> Result<PathBuf, Box<Error>
     Ok(default_profile_path)
 }
 
-fn load_from_recovery(recovery_path: &Path, bcj: &mut Box<CookieJar>, domain_regex: &Regex) -> Result<bool, Box<Error>> {
+fn load_from_recovery(recovery_path: &Path, bcj: &mut Box<CookieJar>, domain_regex: &Regex) -> Result<bool, Box<dyn Error>> {
     let recovery_file = File::open(recovery_path)?;
     let recovery_mmap = unsafe { MmapOptions::new().map(&recovery_file)? };
 
@@ -101,7 +101,7 @@ fn load_from_recovery(recovery_path: &Path, bcj: &mut Box<CookieJar>, domain_reg
     Ok(true)
 }
 
-pub(crate) fn load(bcj: &mut Box<CookieJar>, domain_regex: &Regex) -> Result<(), Box<Error>>  {
+pub(crate) fn load(bcj: &mut Box<CookieJar>, domain_regex: &Regex) -> Result<(), Box<dyn Error>>  {
     // Returns a CookieJar on heap if following steps go right
     //
     // 1. Get default profile path for firefox from master ini profiles config.
